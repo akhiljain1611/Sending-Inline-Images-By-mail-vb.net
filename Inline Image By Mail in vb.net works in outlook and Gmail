@@ -1,0 +1,88 @@
+Public Function SendEmail(Optional ByVal p_AsHTML As Boolean = False, Optional ByVal p_themEmail As String = "") As Boolean
+        Dim client As SmtpClient = New SmtpClient ''("FMSERVER.FMINNOVATIONS.COM.AU")
+        'Dim fromAddress As MailAddress = New MailAddress(Me.FromEmail, "WSMenterprise")
+        'Dim toAddress As MailAddress
+        Try
+            Dim aMessage As New MailMessage()
+            '(New MailAddress(Me.FromEmail, "WSMenterprise"), New MailAddress(anAdd))
+            If _fromAddress IsNot Nothing Then
+                If _fromName IsNot Nothing Then
+                    aMessage.From = New MailAddress(_fromAddress, _fromName)
+                Else
+                    aMessage.From = New MailAddress(_fromAddress)
+                End If
+            End If
+            For Each anAdd As String In _To
+                aMessage.To.Add(New MailAddress(anAdd))
+            Next
+            For Each cc As String In _CC
+                aMessage.CC.Add(New MailAddress(cc))
+            Next
+            For Each bcc As String In _BCC
+                aMessage.Bcc.Add(New MailAddress(bcc))
+            Next
+            aMessage.Subject = _Subject
+            aMessage.IsBodyHtml = p_AsHTML
+
+            If _EmailLogo Is Nothing Then
+                aMessage.Body = _Body
+            Else
+                If p_themEmail.ToString().ToLower.Contains("dexus") Then
+
+                   Dim htmlView = AlternateView.CreateAlternateViewFromString(_Body.ToString(), Nothing, "text/html")
+                    Dim logo As New LinkedResource(_EmailLogo)
+                    logo.ContentId = "Dexuslogo1"
+                    Dim logo1 As New LinkedResource(_EmailLogo1)
+                    logo1.ContentId = "Dexuslogo2"
+                    htmlView.LinkedResources.Add(logo)
+                    htmlView.LinkedResources.Add(logo1)
+                    aMessage.AlternateViews.Add(htmlView)
+
+                Else
+
+                    Dim htmlView = AlternateView.CreateAlternateViewFromString(_Body.ToString(), Nothing, "text/html")
+                    Dim logo As New LinkedResource(_EmailLogo)
+                    logo.ContentId = "companylogo"
+                    htmlView.LinkedResources.Add(logo)
+                    aMessage.AlternateViews.Add(htmlView)
+                End If
+            End If
+
+            For Each anAttach As Attachment In _Attachments
+                aMessage.Attachments.Add(anAttach)
+            Next
+
+            If _ReplyTo IsNot Nothing Then aMessage.ReplyToList.Add(New MailAddress(_ReplyTo))
+            client.Host = "smtpi.cbre.com.au"
+            client.UseDefaultCredentials = True
+            client.Send(aMessage)
+        Catch exRecipUnk As SmtpFailedRecipientException
+            Return False
+        Catch exSmtp As SmtpException
+            ''exSmtp.StatusCode
+            Return False
+        Catch ex As Exception
+            Return False
+        End Try
+        Return True
+    End Function
+If p_Gmap_code = "DE" Then
+            Dim p_Theme As New Theme("Dexus")
+            Dim passwordlink As String = ""
+            Dim DexuslogoImage1 As String = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images\Dexus_Notice_Logo.png")
+            Dim DexuslogoImage2 As String = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images\DexusTenantNotice.png")
+
+            passwordlink = "<a href='" + p_Theme.TenantLoginPage + "?accesstype=email&te=" + a.Encrypt(p_TenantEmail) + "' target='_blank'>here.</a><br/>"
+            bodys += "<div align='Center'><table border='0' cellpadding='0' cellspacing='0'><tr style='height:50px;'><td width='623px' ></td><td valign='top' width='180'><p align='right'><a href='http://www.dexus.com/'><img border='0' height='50' src=cid:Dexuslogo1 width='174' alt=''/></a></p></td></tr><tr><td colspan='2' width='803' style='height:25px;'></td></tr> <tr><td width='623px'><p align='left' style='font-family:Arial;font-size:14pt;'><strong> Your Dexus Response Password is about to expire</strong></p></td>"
+            bodys += " <td width='180'><p align='right' style='font-family:Arial;font-size:10pt;'>" + DateTime.Now.ToString("dd/MM/yyyy") + " </p>"
+            bodys += "</td></tr><tr><td colspan='2' width='803' style='height:30px;'>  </td></tr> <tr>  <td colspan='2' width='803' style='font-family:Arial;font-size:10pt;'>"
+            bodys += "<p>" + wishes + " " + p_TenantName.Trim().ToString() + "</p>"
+            bodys += "</td></tr><tr><td colspan='2' width='803' style='height:25px;'></td> </tr><tr><td colspan='2' width='803' style='font-family:Arial;font-size:10pt;'>"
+            bodys += "Your Dexus Response password is about to expire in " + p_remaindays.ToString() + " days.<br /><br /> To reset your password and update your details, please click " + passwordlink.ToString() + "<br /><br />Please note that if you do not update your password by " + p_date + ",then your account will be set to inactive and you will not be able to access Dexus Response.</br></br>Please contact Dexus Response if you require assistance in accessing the portal.</p></td>" 'edit
+            bodys += " </tr><tr><td colspan='2' width='803' style='height:30px;'></td></tr><tr><td colspan='2' width='803'><table align='left' border='0' cellpadding='0' cellspacing='0'><tr><td width='802' style='font-family:Arial;font-size:10pt;'><p><strong>Dexus Response</strong></p></td></tr><tr><td width='802' style='font-family:Arial;font-size:10pt;'><p><a href='mailto:property.services@dexusfm.com'>property.services@dexusfm.com</a> <strong>|</strong> 1300 339 870 <strong>|</strong> <a href='https://response.dexus.com/'>response.dexus.com</a></p></td></tr></table></td></tr><tr><td colspan='2' width='803' style='height:15px;'></td></tr><tr> <td colspan='2' width='803'><p> </p><p><a href='https://response.dexus.com/' border='0' target='_blank'><img border='0' height='133'"
+            bodys += "src=cid:Dexuslogo2 alt='' width='800' /></a></p></td></tr><tr><td colspan='2' width='803' style='height:10px;'></td></tr><tr><td colspan='2' width='803' style='font-family:Arial;font-size:10pt;'><p><a href='http://www.dexus.com/who-we-are/terms-and-conditions' style=' color:#000000;'>Terms and Conditions</a><strong> | </strong><a href='http://www.dexus.com/who-we-are/privacy-policy' style=' color:#000000;'> Privacy Policy</a></p></td></tr><tr><td colspan='2' width='803' style='height:40px;'></td></tr><tr><td colspan='2' width='803'><p></p></td></tr><tr><td colspan='2' width='803' style='height:10px;'></td></tr><tr></tr><tr><td colspan='2' width='803' style='height:20px;'></td></tr></table></div>"
+
+            email = New Common.Email(emailHeading, bodys, p_Theme.EmailFrom, DexuslogoImage1, DexuslogoImage2)
+            email.ToEmail = p_TenantEmail
+            email.SendEmail(True, p_Theme.EmailFrom)
+
